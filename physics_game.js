@@ -2,28 +2,16 @@ class Example extends Phaser.Scene
 {
     preload ()
     {
+        this.load.path = './assets/';
+        this.load.image("arrow", "arrow.png");
+        this.load.image("bow", "bow.png");
     }
 
-    create ()
-    {   
-        // https://labs.phaser.io/edit.html?src=src/physics/matterjs/basic%20constraint.js
-        // const text = this.add.text(100, 0, 'Phaser 3', { font: '32px Arial', fill: '#00ff00' });
-        // const text2 = this.add.text(100, -100, 'Phaser 3', { font: '32px Arial', fill: '#ffff00' });
+    init(data) {
 
-        // const matterText = this.matter.add.gameObject(text, { shape: { type: 'polygon', sides: 8, radius: 64 } }).setFrictionAir(0.001).setBounce(0.9);
-        // const matterText2 = this.matter.add.gameObject(text2).setFrictionAir(0.001).setBounce(0.9);
+    }
 
-        // matterText2.setVelocity(5, 10);
-
-        let ground = this.matter.add.rectangle(400, 650, 800, 100, { isStatic: true });
-
-        console.log(this);
-
-        this.matter.add.mouseSpring();
-
-        let scale = 1.5;
-        let x = 400, y = 400;
-        let staticBody = false;
+    constructHumanoid(x, y, scale, staticBody) {
         var head = this.matter.add.rectangle(x, y - 60 * scale, 34 * scale, 40 * scale, {isStatic: staticBody,
             label: 'head',
             collisionFilter: {
@@ -163,7 +151,7 @@ class Example extends Phaser.Scene
             }
         });
 
-        this.matter.add.constraint(chest, rightUpperArm, 25, 0.6, {
+        let chestToRightUpperArm = this.matter.add.constraint(chest, rightUpperArm, 25, 0.6, {
             pointA: {
                 x: 24 * scale,
                 y: -23 * scale
@@ -177,7 +165,7 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(chest, leftUpperArm, 25, 0.6, {
+        let chestToLeftUpperArm = this.matter.add.constraint(chest, leftUpperArm, 25, 0.6, {
             pointA: {
                 x: -24 * scale,
                 y: -23 * scale
@@ -191,7 +179,7 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(chest, leftUpperLeg, 25, 0.6, {
+        let chestToLeftUpperLeg = this.matter.add.constraint(chest, leftUpperLeg, 25, 0.6, {
             pointA: {
                 x: -10 * scale,
                 y: 30 * scale
@@ -205,7 +193,7 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(chest, rightUpperLeg, 25, 0.6, {
+        let chestToRightUpperLeg =this.matter.add.constraint(chest, rightUpperLeg, 25, 0.6, {
             pointA: {
                 x: 10 * scale,
                 y: 30 * scale
@@ -219,7 +207,7 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(rightUpperArm, rightLowerArm, 15, 0.6, {
+        let upperToLowerRightArm = this.matter.add.constraint(rightUpperArm, rightLowerArm, 15, 0.6, {
             pointA: {
                 x: 0,
                 y: 15 * scale
@@ -233,7 +221,7 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(leftUpperArm, leftLowerArm, 15, 0.6, {
+        let upperToLowerLeftArm =this.matter.add.constraint(leftUpperArm, leftLowerArm, 15, 0.6, {
             pointA: {
                 x: 0,
                 y: 15 * scale
@@ -247,7 +235,7 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(leftUpperLeg, leftLowerLeg, 15, 0.6, {
+        let upperToLowerLeftLeg = this.matter.add.constraint(leftUpperLeg, leftLowerLeg, 15, 0.6, {
             pointA: {
                 x: 0,
                 y: 20 * scale
@@ -261,7 +249,7 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(rightUpperLeg, rightLowerLeg, 15, 0.6, {
+        let upperToLowerRightLeg = this.matter.add.constraint(rightUpperLeg, rightLowerLeg, 15, 0.6, {
             pointA: {
                 x: 0,
                 y: 20 * scale
@@ -275,7 +263,7 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(head, chest, 0, 0.6, {
+        let headConstraint = this.matter.add.constraint(head, chest, 0, 0.6, {
             pointA: {
                 x: 0,
                 y: 25 * scale
@@ -289,9 +277,9 @@ class Example extends Phaser.Scene
             }
         });
         
-        this.matter.add.constraint(leftLowerLeg, rightLowerLeg, 50, 0.01, {
+        let legToLeg = this.matter.add.constraint(leftLowerLeg, rightLowerLeg, 50, 0.01, {
             render: {
-                visible: true
+                visible: false
             }
         });
             
@@ -301,35 +289,68 @@ class Example extends Phaser.Scene
                 rightLowerArm, rightUpperArm, leftLowerLeg, 
                 rightLowerLeg, leftUpperLeg, rightUpperLeg
             ],
-            // constraints: [
-            //     upperToLowerLeftArm, upperToLowerRightArm, chestToLeftUpperArm, 
-            //     chestToRightUpperArm, headContraint, upperToLowerLeftLeg, 
-            //     upperToLowerRightLeg, chestToLeftUpperLeg, chestToRightUpperLeg,
-            //     legToLeg
-            // ]
+            constraints: [
+                upperToLowerLeftArm, upperToLowerRightArm, chestToLeftUpperArm, 
+                chestToRightUpperArm, headConstraint, upperToLowerLeftLeg, 
+                upperToLowerRightLeg, chestToLeftUpperLeg, chestToRightUpperLeg,
+                legToLeg
+            ]
         });
 
-        // let b = [
-        //     chest, head, leftLowerArm, leftUpperArm, 
-        //     rightLowerArm, rightUpperArm, leftLowerLeg, 
-        //     rightLowerLeg, leftUpperLeg, rightUpperLeg
-        // ];
-        // this.matter.composite.add(person);
-        // console.log(person);
-        this.input.on('pointerdown', (event) => {
+        return person;
+    }
+
+    create ()
+    {   
+        // https://labs.phaser.io/edit.html?src=src/physics/matterjs/basic%20constraint.js
+        // const text = this.add.text(100, 0, 'Phaser 3', { font: '32px Arial', fill: '#00ff00' });
+        // const text2 = this.add.text(100, -100, 'Phaser 3', { font: '32px Arial', fill: '#ffff00' });
+
+        // const matterText = this.matter.add.gameObject(text, { shape: { type: 'polygon', sides: 8, radius: 64 } }).setFrictionAir(0.001).setBounce(0.9);
+        // const matterText2 = this.matter.add.gameObject(text2).setFrictionAir(0.001).setBounce(0.9);
+
+        // matterText2.setVelocity(5, 10);
+
+        let arrow = this.matter.add.image(1500, 400, 'arrow');
+        // let bow = this.matter.add.image(400, 300, 'bow');
+
+        let ground = this.matter.add.rectangle(400, 650, 800, 100, { isStatic: true });
+        let wall = this.matter.add.rectangle(0, 200, 100, 800, { isStatic: true });
+
+        arrow.setScale(0.35);
+        arrow.setAngle(180);
+        arrow.setVelocity(-100, 0);
+        console.log(this);
+
+        this.matter.add.mouseSpring();
+
+        let staticBody = false;
+
+        let person = this.constructHumanoid(400,400,1.5,false);
+
+        console.log(person);
+        
+        
+        let down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        // let {x,y,isDown} = this.input.activePointer;
+        // this.mousex = x;
+        // this.mousey = y;
+        down.on('down', () => {
             staticBody = !staticBody;
             person.bodies.forEach(element => {
-                    this.matter.body.setStatic(element, staticBody); // = staticBody;
+                if (element.label == 'chest')
+                    this.matter.body.setStatic(element, staticBody);
                 });
+                //     this.matter.body.setStatic(element, staticBody); // = staticBody;
+                // });
         });
-        
-        // this.matter.body.setStatic(chest, true);
-        // chest.x = 0;
-        // this.matter.body.setPosition(chest, { x: 400, y: 400 });
-        console.log(chest);
-        // console.log(staticBody);
-        // b.
-        // });
+        up.on('down', () => {
+                // arrow.setPosition(1500,400);
+                // arrow.setVelocity(-50,0);
+                // arrow.setAngle(180);
+                this.scene.restart();
+            });
     }
 }
 
@@ -339,6 +360,7 @@ const game = new Phaser.Game({
     physics: {
         default: 'matter',
         matter: {
+            enableSleeping: true,
             debug: true,
             gravity: {
                 y: 0.3
