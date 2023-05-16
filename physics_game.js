@@ -8,7 +8,8 @@ class Example extends Phaser.Scene
     }
 
     init(data) {
-
+        // console.log(data);
+        this.data = data;
     }
 
     constructHumanoid(x, y, scale, staticBody) {
@@ -23,7 +24,7 @@ class Example extends Phaser.Scene
             render: {
                 fillStyle: '#FFBC42'
             }});
-        console.log(head);
+        // console.log(head);
 
         var chest = this.matter.add.rectangle(x, y, 55 * scale, 80 * scale, {
             isStatic: staticBody,
@@ -300,6 +301,24 @@ class Example extends Phaser.Scene
         return person;
     }
 
+    spawnArrow(x, y, angle, velocityX, velocityY, scale) {
+        let arrow = this.matter.add.image(x, y, 'arrow', null);
+        arrow.setScale(0.2 * scale);
+        arrow.setAngle(angle);
+        arrow.setVelocity(velocityX, velocityY);
+        arrow.rotation = angle;
+        // console.log(this.person);
+        // arrow.setOnCollideWith(this.person, pair => {
+        //     arrow.destroy();
+            
+        //     this.person.bodies.forEach(element => {
+        //         if (element.label == 'chest')
+        //             this.matter.body.setStatic(element, staticBody);
+        //         });
+        //   });
+        return arrow;
+    }
+
     create ()
     {   
         // https://labs.phaser.io/edit.html?src=src/physics/matterjs/basic%20constraint.js
@@ -309,34 +328,63 @@ class Example extends Phaser.Scene
         // const matterText = this.matter.add.gameObject(text, { shape: { type: 'polygon', sides: 8, radius: 64 } }).setFrictionAir(0.001).setBounce(0.9);
         // const matterText2 = this.matter.add.gameObject(text2).setFrictionAir(0.001).setBounce(0.9);
 
-        // matterText2.setVelocity(5, 10);
 
-        let arrow = this.matter.add.image(1500, 400, 'arrow');
+
+        this.aimArrow = this.matter.add.image(1500, 400, 'arrow', null);
+        this.spawnedArrows = [];
+        // this.matter.body.setStatic(arrow, true);
+        // arrow.setVelocity(0, 10);
+
+        this.aimArrow.setStatic(true);
         // let bow = this.matter.add.image(400, 300, 'bow');
 
         let ground = this.matter.add.rectangle(400, 650, 800, 100, { isStatic: true });
         let wall = this.matter.add.rectangle(0, 200, 100, 800, { isStatic: true });
 
-        arrow.setScale(0.35);
-        arrow.setAngle(180);
-        arrow.setVelocity(-100, 0);
+        let staticBody = false;
+        let scale = this.data.scale != null ? this.data.scale : 2;
+
+        this.aimArrow.setScale(0.2 * scale);
+        // arrow.setAngle(180);
+        // arrow.setVelocity(0, 0);
         console.log(this);
 
-        this.matter.add.mouseSpring();
+        // this.matter.add.mouseSpring();
+        let {mousex,mousey,isDown} = this.input.activePointer;
+        this.mousex = mousex;
+        this.mousey = mousey;
+        this.input.on('pointerdown', (event) => {
+            // arrow.setStatic(false);
+            // console.log(this.mousex,this.mousey);
+            // console.log(arrow.isStatic());
+            // console.log(arrow);
+            const angle = Phaser.Math.Angle.Between(this.aimArrow.x, this.aimArrow.y, this.mousex, this.mousey);
+            const speed = 35 * scale;
+            const velocityX = Math.cos(angle) * speed;
+            const velocityY = Math.sin(angle) * speed;
+            // this.matter.body.rotate(arrow, angle, [this.mousex, this.mousey], false);
+            
+            // arrow.rotation = angle;
+            // arrow.setAngularVelocity(0);
+            // arrow.setAngularSpeed(0);
+            // this.matter.body.setAngularVelocity(arrow, 0);
+            // this.matter.body.setAngularSpeed(arrow, 0);
+            // arrow.setVelocity(velocityX, velocityY);
+            let newArrow = this.spawnArrow(this.aimArrow.x, this.aimArrow.y, angle, velocityX, velocityY-0.09, scale);
+            this.spawnedArrows.push(newArrow);
+        });
 
-        let staticBody = false;
 
-        let person = this.constructHumanoid(400,400,1.5,false);
+        let person = this.constructHumanoid(400,400,scale,false);
 
-        console.log(person);
+        this.person = person;
+        // console.log(person);
         
         
         let down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-        // let {x,y,isDown} = this.input.activePointer;
-        // this.mousex = x;
-        // this.mousey = y;
-        down.on('down', () => {
+
+        // down.on('down', () => {
             staticBody = !staticBody;
             person.bodies.forEach(element => {
                 if (element.label == 'chest')
@@ -344,13 +392,40 @@ class Example extends Phaser.Scene
                 });
                 //     this.matter.body.setStatic(element, staticBody); // = staticBody;
                 // });
-        });
-        up.on('down', () => {
+        // });
+        up.on('up', () => {
                 // arrow.setPosition(1500,400);
                 // arrow.setVelocity(-50,0);
                 // arrow.setAngle(180);
-                this.scene.restart();
+                this.scene.restart({"scale":1.5});
             });
+            
+    }
+
+    update() {
+        let {x,y,isDown} = this.input.activePointer;
+        this.mousex = x;
+        this.mousey = y;
+        const angle = Phaser.Math.Angle.Between(this.aimArrow.x, this.aimArrow.y, this.mousex, this.mousey);
+        this.aimArrow.setAngle(angle);
+        this.aimArrow.rotation = angle;
+
+        this.spawnedArrows.forEach(arrow =>  {
+            this.person.bodies.forEach(part => {
+                // console.log(arrow.body);
+                // console.log(part);
+                let col = this.matter.collision.collides(arrow.body, part);
+                // console.log(col);
+                if (col) {
+                    console.log(col);
+                    this.person.bodies.forEach(element => {
+                        if (element.label == 'chest')
+                            this.matter.body.setStatic(element, false);
+                        });
+                }
+            });
+        });
+       
     }
 }
 
