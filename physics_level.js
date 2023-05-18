@@ -3,6 +3,8 @@ class LevelScene extends Phaser.Scene {
     init(data) {
         // console.log(data);
         this.data = data;
+        this.startTime = 0;
+        this.sceneDuration = 0;
     }
 
     preload() {
@@ -12,10 +14,133 @@ class LevelScene extends Phaser.Scene {
         this.load.image("aOpponentShortLimb", "armoredOpponent-shortLimb.png");
         this.load.image("aOpponentLeg", "armoredOpponent-leg.png");
         this.load.image("aOpponentArm", "armoredOpponent-arm.png");
-        // this.load.image("aOpponentLongLimb", "armoredOpponent-longLimb.png");
+        this.load.image("arrow", "arrow.png");
+        this.load.image("bow", "bow.png");
+        this.load.plugin('rexroundrectangleplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexroundrectangleplugin.min.js', true);
+        this.load.plugin('rexkawaseblurpipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexkawaseblurpipelineplugin.min.js', true);
+        this.load.plugin('rexdropshadowpipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexdropshadowpipelineplugin.min.js', true);
+
+    }
+
+    create() {
+        let down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        this.maxCharge = false;
+        down.on('down', () => {
+            this.maxCharge = !this.maxCharge;
+        });
+        up.on('up', () => {
+                this.scene.restart({"scale":1});
+            });
+
+        this.startTime = this.sys.game.loop.time;
+        this.scale = this.data.scale != null ? this.data.scale : 1;
+
+        this.chargeTime = 0;
+        this.chargeDisplay = this.add.text(0, 0, "Charge: 0", {font: "20px Arial", fill: "#ffff00"});
+        this.reset = false;
+        this.arrowsShot = 0;
+        this.arrowsHit = 0;
+
+        this.spawnedArrows = [];
+        this.humanoids = [] 
+
+        let {mousex,mousey,isDown} = this.input.activePointer;
+        this.mousex = mousex;
+        this.mousey = mousey;
+
+        this.events.removeListener("arrowHit");
+        this.events.on("arrowHit", (param) => {
+            this.arrowsHit = this.arrowsHit + param;
+            // console.log(this.arrowsHit);
+          });
+        this.canCharge = true; //this.data.canCharge != null ? this.data.canCharge : true;
+        this.input.on('pointerup', (event) => {
+            this.canCharge = true;
+        });
+    }
+
+    update() {
+        if (!this.reset) {
+            this.sceneDuration = this.sys.game.loop.time - this.startTime;
+        }
+        let {x,y,isDown} = this.input.activePointer;
+        this.mousex = x;
+        this.mousey = y;
+        if (isDown && this.canCharge) {
+            if (this.maxCharge) {
+                this.chargeTime = 100;
+                this.shootArrow(this.chargeTime+10/this.scale, this.scale, this.bow, this.mousex, this.mousey, this.spawnedArrows);
+                this.arrowsShot += 1;
+                this.chargeTime = 0;
+                this.chargeDisplay.setText("Charge: " + this.chargeTime);
+            }
+            if (this.chargeTime < 100) {
+                this.chargeTime = this.chargeTime == 0 ? 1 : this.chargeTime * 1.1;
+                if (this.chargeTime > 100) {
+                    this.chargeTime = 100;
+                }
+                this.chargeDisplay.setText("Charge: " + this.chargeTime);
+            }            
+        }
+        else if (this.chargeTime > 0) {
+            this.shootArrow(this.chargeTime+10/this.scale, this.scale, this.bow, this.mousex, this.mousey, this.spawnedArrows);
+            this.arrowsShot += 1;
+            this.chargeTime = 0;
+            this.chargeDisplay.setText("Charge: " + this.chargeTime);
+        }
+
+        const angle = Phaser.Math.Angle.Between(this.bow.x, this.bow.y, this.mousex, this.mousey);
+        this.bow.rotation = angle;
+        let humanoidsDefeated = true;
+        this.humanoids.forEach(humanoid => {
+            this.checkArrowCollisions(this.spawnedArrows, humanoid);
+            if (humanoid.health > 0) {
+                humanoidsDefeated = false;
+            }
+        });
+        if (humanoidsDefeated && !this.reset) {
+            this.reset = true;
+            let delta = 0;
+            this.tweens.addCounter({
+                from: 0,
+                to: 1000,
+                onUpdate: (tween) => {
+                    if (delta == 0) {
+                        delta = tween.getValue();
+                    }
+                    else {
+                        // delta = tween.getValue() - delta;
+                        delta = Math.abs(delta-tween.getValue());
+                    }
+                    for (let iterations = 0; iterations < delta/(200/this.scale+0.2); iterations++) {
+                        this.matter.world.engine.timing.timeScale = this.matter.world.engine.timing.timeScale > 0.001 ? this.matter.world.engine.timing.timeScale * 0.975 : 0.001;
+                    }
+                }
+            });
+            this.time.delayedCall(5000, ()=>{
+                var pipelineInstance = this.plugins.get('rexkawaseblurpipelineplugin').add(this.cameras.main, {
+                    blur: 5,
+                    quality: 3
+                });
+                this.scene.launch('SummaryScene', {
+                    arrowsHit: this.arrowsHit, 
+                    arrowsShot: this.arrowsShot, 
+                    health: this.player.health, 
+                    maxHealth: 3, 
+                    duration: this.sceneDuration,
+                    currentLevel: this.currentLevel,
+                    nextLevel: this.nextLevel
+                });
+                this.scene.pause();
+            });
+        }
     }
 
     constructHumanoid(x, y, scale, staticBody, health) {
+        let flip = scale < 0 ? true : false;
+        scale = Math.abs(scale);
+
         let head = this.matter.add.rectangle(x, y - 60 * scale, 34 * scale, 40 * scale, {
             isStatic: staticBody,
             label: 'head',
@@ -284,11 +409,11 @@ class LevelScene extends Phaser.Scene {
             }
         });
         
-        // let legToLeg = this.matter.add.constraint(leftLowerLeg, rightLowerLeg, 50*(scale*0.6), 0.01, {
-        //     render: {
-        //         visible: false
-        //     }
-        // });
+        let legToLeg = this.matter.add.constraint(leftLowerLeg, rightLowerLeg, 50*(scale*0.4), 0.01, {
+            render: {
+                visible: false
+            }
+        });
             
         let person = this.matter.composite.create({
             bodies: [
@@ -300,14 +425,17 @@ class LevelScene extends Phaser.Scene {
                 upperToLowerLeftArm, upperToLowerRightArm, chestToLeftUpperArm, 
                 chestToRightUpperArm, headConstraint, upperToLowerLeftLeg, 
                 upperToLowerRightLeg, chestToLeftUpperLeg, chestToRightUpperLeg,
-                //legToLeg
+                legToLeg
             ]
         });
 
         this.matter.body.setStatic(chest, !staticBody);
         person.health = health;
+        person.dead = false;
 
         let linkedSprites = [];
+
+        // scale = flip ? -1*scale : scale;
 
         let oppHead = this.add.sprite(0, 0, 'aOpponentHead').setScale(scale*0.22);
         oppHead.linkedBody = head;
@@ -349,6 +477,13 @@ class LevelScene extends Phaser.Scene {
         oppLowerLeftLeg.linkedBody = leftLowerLeg;
         linkedSprites.push(oppLowerLeftLeg);
 
+        linkedSprites.forEach(element => {
+            element.setFlipX(flip);
+        });
+
+        person.linkedSprites = linkedSprites;
+        person.linkedArrows = [];
+
         this.matter.world.on('beforeupdate', () => {
             linkedSprites.forEach(element => {
                 element.setPosition(element.linkedBody.position.x, element.linkedBody.position.y);
@@ -367,23 +502,21 @@ class LevelScene extends Phaser.Scene {
         arrow.rotation = angle;
         arrow.alreadyHit = false;
         arrow.body.collisionFilter.group = -15;
-        // this.matter.body.setCentre(arrow.body,{x:1, y:1}, true);
-        // arrow.body.centerOfMass = {x:10, y:0.5};
-        // console.log(arrow.centerOfMass);
-        console.log(arrow);
+        // console.log(arrow);
         return arrow;
     }
 
-    shootArrow(power, scale, aimArrow, mousex, mousey, arrowList) {
-        const angle = Phaser.Math.Angle.Between(aimArrow.x, aimArrow.y, mousex, mousey);
+    shootArrow(power, scale, bow, mousex, mousey, arrowList) {
+        scale = Math.abs(scale);
+        const angle = Phaser.Math.Angle.Between(bow.x, bow.y, mousex, mousey);
         const speed = power * scale;
         const velocityX = Math.cos(angle) * speed;
         const velocityY = Math.sin(angle) * speed;
         
-        let newArrow = this.spawnArrow(aimArrow.x, aimArrow.y, angle, velocityX, velocityY-0.09, scale);
+        let newArrow = this.spawnArrow(bow.x, bow.y, angle, velocityX, velocityY-0.09, scale);
 
         arrowList.push(newArrow);
-        this.time.delayedCall(5000, ()=>{
+        this.time.delayedCall(7500, ()=>{
             if (newArrow) {
                 this.destroyArrow(newArrow, arrowList);
             }
@@ -411,20 +544,65 @@ class LevelScene extends Phaser.Scene {
         });
     }
 
+    createPlayer(x, y, scale) {
+
+        let aimArrow = this.matter.add.image(100, 0, 'arrow', null);
+        // aimArrow.scale = 0.2 * scale;
+        aimArrow.setStatic(true);
+        aimArrow.setScale(0.2 * scale);
+        // aimArrow.setOrigin(-2,-2);
+        // console.log(aimArrow);
+        // console.log(this);
+        let bow = this.matter.add.image(100, 0, 'bow', null);
+        // bow.scale = 0.2 * scale;
+        bow.setStatic(true);
+        bow.setScale(0.2 * scale);
+        // bow.setOrigin(-2,-2);
+        let player = this.constructHumanoid(x, y, scale, false, 3);
+        let playerContainer = this.add.container(x, y);
+        // console.log(playerContainer);
+        playerContainer.add([bow, aimArrow]);
+        return {player, playerContainer};
+    }
+
     checkArrowCollisions(arrowList, person) {
         arrowList.forEach(arrow => {
             person.bodies.forEach(part => {
                 let col = this.matter.collision.collides(arrow.body, part);
                 if (col) {
-                    if (person.health <= 0) {
+                    if (person.health <= 0 && !person.dead) {
+                        person.dead = true;
                         person.bodies.forEach(element => {
                             if (element.label == 'chest')
                                 this.matter.body.setStatic(element, false);
                             });
-                        this.time.delayedCall(500, ()=>{
+                        this.time.delayedCall(2500, ()=>{
                             person.constraints.forEach(element => {
                                 this.matter.world.removeConstraint(element);
                             });
+                            // console.log(person);
+                            person.bodies.forEach(element => {
+                                element.collisionFilter.group = -1;    
+                            });
+                            if (person.linkedArrows.length > 0) {
+                                // console.log(person.linkedArrows);
+                                person.linkedArrows.forEach(arrow => {
+                                    if (arrow.body) {
+                                        arrow.body.collisionFilter.group = -1;
+                                    }
+                                });
+                            }
+                            this.tweens.add({
+                                delay: 1000,
+                                targets: person.linkedSprites,
+                                alpha: {from: 1, to: 0.25},
+                                duration:2000,
+                                ease:"Cubic.easeOut",
+                                repeat:0,
+                            });
+                            // person.linkedSprites.forEach(sprite => {
+                            //     sprite.setAlpha(0.5);
+                            // });
                         });
                     }
                     if (!arrow.alreadyHit) {
@@ -441,22 +619,34 @@ class LevelScene extends Phaser.Scene {
                                 visible: true
                             }
                         });
+                        person.linkedArrows.push(arrow);
                         // arrow.body.slop = 0.5;
                         arrow.body.collisionFilter.group = part.collisionFilter.group;
                         arrow.alreadyHit = true;
                         // console.log(arrow);
-                        if (part.label == "head") {
-                            person.health -= 3;
+                        if (person.health > 0) {
+                            person.linkedSprites.forEach(sprite => {
+                                sprite.setTint(0xff0000);
+                            });
+                            if (part.label == "head") {
+                                person.health -= 3;
+                            }
+                            else {
+                                person.health -= 1;
+                            }
+                            this.events.emit("arrowHit", 1);
+                            this.time.delayedCall(250, ()=>{
+                                person.linkedSprites.forEach(sprite => {
+                                    sprite.clearTint();
+                                });
+                            });
                         }
-                        else {
-                            person.health -= 1;
-                        }
-                        // arrow.active = false;
+                        // return 1;
                     }
 
                 }
             });
         });
+        // return 0;
     }
-
 }
