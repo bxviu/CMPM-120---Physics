@@ -97,3 +97,48 @@ class MainMenu extends Menu {
 
   }
   
+
+class Credits extends Menu {
+    constructor(){
+        super("Credits");
+    }
+
+    preload ()
+    {      
+        super.preload(); 
+    }
+    create() {
+        let wholeContainer = this.add.container(1920/2, -1000);
+        let entireBox = this.add.rexRoundRectangle(0, 0, 750, 750, 30, 0x99b0af, 1);
+        entireBox.postFX.addShadow(-1,1,0.02,1,0x000000,12,1);
+
+        wholeContainer.add([entireBox]);
+        let title = this.add.text(0, -310, "Credits", {font: "100px Arial", fill: "#000000"});
+        title.setOrigin(0.5);
+
+        wholeContainer.add([title]);
+
+        let level1Box = this.add.rexRoundRectangle(0, 200, 275, 200, 30, 0x3fafaa, 1);
+        level1Box.postFX.addShadow(-1,1,0.02,1,0x000000,12,1);
+        level1Box.setInteractive();
+
+        wholeContainer.add([level1Box]);
+
+        let level1Text = this.add.text(0, 200, "Main\nMenu", { font: '50px Arial', fill: '#af00af' }).setOrigin(0.5);
+        let creditsText = this.add.text(0, -90, "Everything By Benthan Vu \n(except Phaser Library)", { font: '50px Arial', fill: '#000000' }).setOrigin(0.5);
+
+        wholeContainer.add([creditsText,level1Text]);
+
+        this.tweens.add({
+            targets: wholeContainer,
+            y: 1080/2,
+            duration: 500,
+            ease: 'Cubic.out',
+            onComplete: () => {
+                level1Box.on('pointerdown', () => {
+                    this.menuLeave(wholeContainer, "Credits", "MainMenu");
+                });
+            }
+        });
+    }
+}

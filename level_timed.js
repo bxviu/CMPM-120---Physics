@@ -68,20 +68,20 @@ class TimedLevel extends LevelScene
 
     nextWave() {
         let humanoidCount = Math.random()*10+5;
-        let amalgamSpawned = Math.random() < 0.5
+        let amalgamSpawned = Math.random() < 0.3;
         if (amalgamSpawned) {
-            let weirdAmalgamX = Math.random()*1500 +200;
+            let weirdAmalgamX = Math.random()*1400 +500;
             let weirdAmalgamY = Math.random()*900 +100;
-            let weirdAmalgamScale = this.scale-(Math.random()+0.3);
+            let weirdAmalgamScale = Math.random()+0.2;
             for (let count = 0; count < humanoidCount; count++) {
-                this.humanoids.push(this.constructHumanoid(weirdAmalgamX-count, weirdAmalgamY, weirdAmalgamScale, false, 1, true, Math.random()*500 + 750, Math.random()*10+15));
+                this.humanoids.push(this.constructHumanoid(weirdAmalgamX-count, weirdAmalgamY, weirdAmalgamScale, false, 1, true, Math.random()*500 + 750, Math.random()*10+25));
             }
         }
 
         humanoidCount = amalgamSpawned ? Math.random()*2 : Math.random()*4+2;
         for (let count = 0; count < humanoidCount; count++) {
             let difficulty = Math.random();
-            this.humanoids.push(this.constructHumanoid(Math.random()*1400+300, Math.random()*900+100, this.scale+(difficulty-0.5), false, Math.floor(difficulty*5)+1, true, Math.random()*7000 + 750, Math.random()*10+5));
+            this.humanoids.push(this.constructHumanoid(Math.random()*1400+500, Math.random()*900+100, this.scale+(difficulty-0.5), false, Math.floor(difficulty*5)+1, true, Math.random()*5000 + 750, Math.random()*14+1));
         }
 
     }

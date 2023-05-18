@@ -45,7 +45,11 @@ class SummaryScene extends Menu {
         healthText.setOrigin(0.5);
         
         let duration = "";
-        if (this.kills) {
+        
+        if (this.health <= 0 && this.currentLevel == "TimedLevel") {
+            duration = "Time Survived: " + (this.timeTaken/1000).toFixed(3) + "s";
+        }
+        else if (this.kills) {
             duration = "Kills: " + this.kills;
         }
         else {

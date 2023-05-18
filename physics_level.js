@@ -9,7 +9,6 @@ class LevelScene extends Phaser.Scene {
         this.sceneDuration = 0;
         this.timer = 0;
         this.interval = 2000;
-        this.opp = new Opponent(); 
     }
 
     preload() {
