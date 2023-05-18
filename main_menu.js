@@ -18,7 +18,7 @@ class MainMenu extends Menu {
         entireBox.postFX.addShadow(-1,1,0.02,1,0x000000,12,1);
 
         wholeContainer.add([entireBox]);
-        let title = this.add.text(0, -310, "Target Uprising", {font: "100px Arial", fill: "#000000"});
+        let title = this.add.text(0, -310, "On Target", {font: "100px Arial", fill: "#000000"});
         title.setOrigin(0.5);
 
         wholeContainer.add([title]);
@@ -78,11 +78,12 @@ class MainMenu extends Menu {
                     this.menuLeave(wholeContainer, "MainMenu", "LevelThree", {"scale":1, "canCharge": false});       
                     // this.closeMenu("LevelThree", {"scale":1, "canCharge": false});       
                 });
+                //i guess i swapped their names when declaring them, im not going to spend time fixing that
                 timedBox.on('pointerdown', () => {
-                    this.menuLeave(wholeContainer, "MainMenu", "TimedLevel", {"scale":1, "canCharge": false});           
+                    this.menuLeave(wholeContainer, "MainMenu", "Credits");           
                 });
                 creditsBox.on('pointerdown', () => {
-                    this.menuLeave(wholeContainer, "MainMenu", "Credits");           
+                    this.menuLeave(wholeContainer, "MainMenu", "TimedLevel", {"scale":1, "canCharge": false});           
                 });
                 // this.input.on('pointerdown', (event) => {
                 //     this.closeMenu();

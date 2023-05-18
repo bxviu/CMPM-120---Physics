@@ -11,6 +11,7 @@ class SummaryScene extends Menu {
         this.timeTaken = data.duration;
         this.currentLevel = data.currentLevel;
         this.nextLevel = data.nextLevel;
+        this.kills = data.kills;
     }
     preload ()
     {  
@@ -26,7 +27,13 @@ class SummaryScene extends Menu {
         entireBox.postFX.addShadow(-1,1,0.02,1,0x000000,12,1);
 
         summaryBox.add([entireBox]);
-        let summaryTitle = this.add.text(0, -310, "Summary", {font: "100px Arial", fill: "#000000"});
+        let summaryTitle = null;
+        if (this.health <= 0){
+            summaryTitle = this.add.text(0, -310, "You Died...", {font: "100px Arial", fill: "#000000"});
+        } 
+        else {
+            summaryTitle = this.add.text(0, -310, "Summary", {font: "100px Arial", fill: "#000000"});
+        }
         summaryTitle.setOrigin(0.5);
 
         let accuracy = "Accuracy: " + ((this.arrowsHit/this.arrowsShot)*100).toFixed(3) + "%";
@@ -37,7 +44,13 @@ class SummaryScene extends Menu {
         let healthText = this.add.text(0,  -80, health, { font: '50px Arial', fill: '#a0ffa0' });
         healthText.setOrigin(0.5);
         
-        let duration = "Time Taken: " + (this.timeTaken/1000).toFixed(3) + "s";
+        let duration = "";
+        if (this.kills) {
+            duration = "Kills: " + this.kills;
+        }
+        else {
+            duration = "Time Taken: " + (this.timeTaken/1000).toFixed(3) + "s";
+        }
         let durationText = this.add.text(0,  20, duration, { font: '50px Arial', fill: '#a0ffa0' });
         durationText.setOrigin(0.5);
 
@@ -54,7 +67,14 @@ class SummaryScene extends Menu {
         summaryBox.add([nextLevelBox,mainMenuBox]);
 
         let mainMenuText = this.add.text(-(750/4), 200, " Main\nMenu", { font: '50px Arial', fill: '#af00af' }).setOrigin(0.5);
-        let nextLevelText = this.add.text((750/2)-(750/4), 200, " Next\nLevel", { font: '50px Arial', fill: '#af00af' }).setOrigin(0.5);
+        let nextLevelText = null;
+        if (this.health <= 0 || this.currentLevel == "TimedLevel"){
+            nextLevelText = this.add.text((750/2)-(750/4), 200, "Retry", { font: '50px Arial', fill: '#af00af' }).setOrigin(0.5);
+
+        }
+        else {   
+            nextLevelText = this.add.text((750/2)-(750/4), 200, " Next\nLevel", { font: '50px Arial', fill: '#af00af' }).setOrigin(0.5);
+        }
 
         summaryBox.add([mainMenuText,nextLevelText]);
 
@@ -68,7 +88,12 @@ class SummaryScene extends Menu {
                     this.menuLeave(summaryBox, this.currentLevel, "MainMenu");
                 });
                 nextLevelBox.on('pointerdown', () => {
-                    this.menuLeave(summaryBox, this.currentLevel, this.nextLevel, {"scale":1, "canCharge": false});
+                    if (this.health <= 0 || this.currentLevel == "TimedLevel") {
+                        this.menuLeave(summaryBox, this.currentLevel, this.currentLevel, {"scale":1, "canCharge": false});
+                    }
+                    else {
+                        this.menuLeave(summaryBox, this.currentLevel, this.nextLevel, {"scale":1, "canCharge": false});
+                    }
                 });
                 // this.input.on('pointerdown', (event) => {
                 //     this.closeMenu();

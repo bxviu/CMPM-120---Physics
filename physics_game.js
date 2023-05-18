@@ -198,7 +198,7 @@
 
 const game = new Phaser.Game({
     type: Phaser.AUTO,
-    backgroundColor: '#1b1464',
+    backgroundColor: '#2beaff',
     physics: {
         default: 'matter',
         matter: {
@@ -215,6 +215,6 @@ const game = new Phaser.Game({
         width: 1920,
         height: 1080
     },
-    scene: [MainMenu, SummaryScene, LevelOne, LevelTwo],
+    scene: [MainMenu, SummaryScene, LevelOne, LevelTwo, LevelThree,TimedLevel],
     title: "Physics Game",
 });

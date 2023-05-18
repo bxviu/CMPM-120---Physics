@@ -13,13 +13,7 @@ class LevelOne extends LevelScene
         super.create();
         this.currentLevel = "LevelOne";
         this.nextLevel = "LevelTwo";
-
-        let playerItems = this.createPlayer(1700, 800, Math.abs(this.scale));
-        this.bow = playerItems.playerContainer;
-        this.player = playerItems.player;
         
-        let ground = this.matter.add.rectangle(400, 1000, 2000, 100, { isStatic: true });
-        let wall = this.matter.add.rectangle(0, 200, 100, 1500, { isStatic: true });
 
         console.log(this);
 
@@ -28,15 +22,40 @@ class LevelOne extends LevelScene
         // this.humanoids.push(this.constructHumanoid(200, 500, this.scale-0.3, false, 2));
         // this.humanoids.push(this.constructHumanoid(700, 300, this.scale-0.5, false, 1));
         // this.humanoids.push(this.constructHumanoid(400, 400, this.scale+0.5, false, 25));
+        // let humanoidCount = Math.random()*10+1;
+        // for (let count = 0; count < humanoidCount; count++) {
+        //     let difficulty = Math.random();
+        //     this.humanoids.push(this.constructHumanoid(Math.random()*1400+100, Math.random()*900, this.scale+(difficulty-0.5), false, Math.floor(difficulty*5)+1));
+        // }
 
-        let humanoidCount = Math.random()*10+1;
-        for (let count = 0; count < humanoidCount; count++) {
-            let difficulty = Math.random();
-            this.humanoids.push(this.constructHumanoid(Math.random()*1400+100, Math.random()*900, this.scale+(difficulty-0.5), false, Math.floor(difficulty*5)+1));
-        }
-        
+        let instructions = this.add.text(200, 150, "Hold Click to Charge the Bow\nLet Go to Shoot the Arrow in the direction of your Mouse\n\nEach Arrow does 1 DMG\nHeadshotting Opponents does 3 DMG\nOpponents can shoot at you\nTheir Arm will glow orange when they start throwing arrows\nYou have 10 Health", {font: "bold 40px Arial", fill: "#ffffff"});
+
+        this.humanoids.push(this.constructHumanoid(1300, 600, this.scale, false, 3, true, 3000, 2));
+        // this.humanoids.push(this.constructHumanoid(700, 300, this.scale, false, 3, true, 3000, 1));
+        // this.humanoids.push(this.constructHumanoid(1000, 400, this.scale, false, 3, true, 6000, 0));
+
+        this.events.on("levelEnd", (param) => {
+            instructions.setText("");
+          });
+        // this.time.delayedCall(1000, ()=>{
+        //     this.humanoidAttack(this.humanoids[0], this.scale);
+        // });
     }
 
+    // update (time, delta)
+    // {
+    //     super.update();
+        // this.timer = this.timer + delta;
+        // console.log(this.timer);
+        // player arms follow bow
+
+
+        // if (this.timer >= this.interval) {
+                // this.timer -= this.interval;
+                //      // Reset the timer
+
+        // }
+    // }
     // update() {
     //     if (!this.reset) {
     //         this.sceneDuration = this.sys.game.loop.time - this.startTime;

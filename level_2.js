@@ -14,9 +14,9 @@ class LevelTwo extends LevelScene
         this.currentLevel = "LevelTwo";
         this.nextLevel = "LevelThree";
 
-        let playerItems = this.createPlayer(1700, 800, Math.abs(this.scale));
-        this.bow = playerItems.playerContainer;
-        this.player = playerItems.player;
+        // let playerItems = this.createPlayer(1700, 800, Math.abs(this.scale));
+        // this.bow = playerItems.playerContainer;
+        // this.player = playerItems.player;
         // this.startTime = this.sys.game.loop.time;
         // this.scale = this.data.scale != null ? this.data.scale : 1.5;
         // let playerItems = this.createPlayer(1700, 800, Math.abs(this.scale));
@@ -47,22 +47,20 @@ class LevelTwo extends LevelScene
 
         console.log(this);
 
-        let ground = this.matter.add.rectangle(400, 1000, 2000, 100, { isStatic: true });
-        let wall = this.matter.add.rectangle(0, 200, 100, 1500, { isStatic: true });
+        // let ground = this.matter.add.rectangle(400, 1000, 2000, 100, { isStatic: true });
+        // let wall = this.matter.add.rectangle(0, 200, 100, 1500, { isStatic: true });
 
 
 
+        let instructions = this.add.text(200, 300, "There is no lore to this game,\nidk why these guys are floating\n(other than making it so \nyou have to aim in the air)", {font: "bold 40px Arial", fill: "#ffffff"});
+        this.events.on("levelEnd", (param) => {
+            instructions.setText("");
+          });
 
 
-
-
-        this.humanoids.push(this.constructHumanoid(400, 100, this.scale, false, 3));
-        this.humanoids.push(this.constructHumanoid(600, 700, this.scale+0.2, false, 5));
-        this.humanoids.push(this.constructHumanoid(200, 500, this.scale-0.3, false, 2));
-        this.humanoids.push(this.constructHumanoid(700, 300, this.scale-0.5, false, 1));
-        this.humanoids.push(this.constructHumanoid(400, 400, this.scale+0.5, false, 25));
-        
-
+        this.humanoids.push(this.constructHumanoid(700+600, 700, this.scale+0.2, false, 5, true, 2000, 2));
+        this.humanoids.push(this.constructHumanoid(800+200, 500, this.scale-0.3, false, 2, true, 3000, 3));
+        this.humanoids.push(this.constructHumanoid(900+700, 300, this.scale-0.5, false, 1, true, 4000, 1));
 
 
     }

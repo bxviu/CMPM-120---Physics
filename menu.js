@@ -25,8 +25,9 @@ class Menu extends Phaser.Scene {
         // });
         this.scene.start(nextScene, config);
         // if (nextScene != "MainMenu") {
-        this.scene.stop(originalScene);
-        // }
+        if (nextScene != originalScene) {
+            this.scene.stop(originalScene);
+        }
     }
 
     // transitionOut (progress)
