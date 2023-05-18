@@ -7,10 +7,6 @@ class MainMenu extends Menu {
     preload ()
     {      
         super.preload(); 
-        // this.load.plugin('rexroundrectangleplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexroundrectangleplugin.min.js', true);
-        // this.load.plugin('rexkawaseblurpipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexkawaseblurpipelineplugin.min.js', true);
-        // this.load.plugin('rexdropshadowpipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexdropshadowpipelineplugin.min.js', true);
-
     }
     create() {
         let wholeContainer = this.add.container(1920/2, -1000);
@@ -60,23 +56,13 @@ class MainMenu extends Menu {
             ease: 'Cubic.out',
             onComplete: () => {
                 level1Box.on('pointerdown', () => {
-                    this.menuLeave(wholeContainer, "MainMenu", "LevelOne", {"scale":1, "canCharge": false});
-                    // this.scene.transition({
-                    //     target: 'LevelOne',
-                    //     duration: 2000,
-                    //     moveBelow: true,
-                    //     onUpdate: this.transitionOut,
-                    //     data: { x: 400, y: 300, "scale":1, "canCharge": true }
-                    // });
-                    // this.closeMenu("LevelOne", {"scale":1, "canCharge": false});       
+                    this.menuLeave(wholeContainer, "MainMenu", "LevelOne", {"scale":1, "canCharge": false});    
                 });
                 level2Box.on('pointerdown', () => {
-                    this.menuLeave(wholeContainer, "MainMenu", "LevelTwo", {"scale":1, "canCharge": false});       
-                    // this.closeMenu("LevelTwo", {"scale":1, "canCharge": false});       
+                    this.menuLeave(wholeContainer, "MainMenu", "LevelTwo", {"scale":1, "canCharge": false});          
                 });
                 level3Box.on('pointerdown', () => {
-                    this.menuLeave(wholeContainer, "MainMenu", "LevelThree", {"scale":1, "canCharge": false});       
-                    // this.closeMenu("LevelThree", {"scale":1, "canCharge": false});       
+                    this.menuLeave(wholeContainer, "MainMenu", "LevelThree", {"scale":1, "canCharge": false});          
                 });
                 //i guess i swapped their names when declaring them, im not going to spend time fixing that
                 timedBox.on('pointerdown', () => {
@@ -85,9 +71,6 @@ class MainMenu extends Menu {
                 creditsBox.on('pointerdown', () => {
                     this.menuLeave(wholeContainer, "MainMenu", "TimedLevel", {"scale":1, "canCharge": false});           
                 });
-                // this.input.on('pointerdown', (event) => {
-                //     this.closeMenu();
-                // });
             }
         });
     }

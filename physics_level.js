@@ -1,9 +1,6 @@
-// import Opponent from './opponent.js';
-
 class LevelScene extends Phaser.Scene {
     
     init(data) {
-        // console.log(data);
         this.data = data;
         this.startTime = 0;
         this.sceneDuration = 0;
@@ -68,20 +65,14 @@ class LevelScene extends Phaser.Scene {
         this.events.removeListener("arrowHit");
         this.events.on("arrowHit", (param) => {
             this.arrowsHit = this.arrowsHit + param;
-            // console.log(this.arrowsHit);
           });
-        this.canCharge = true; //this.data.canCharge != null ? this.data.canCharge : true;
-        // this.input.on('pointerup', (event) => {
-        //     this.canCharge = true;
-        // });
+        this.canCharge = true; 
 
         let playerItems = this.createPlayer(playerX, playerY, Math.abs(this.scale));
         this.bow = playerItems.playerContainer;
         this.player = playerItems.player;
         this.player.healthDisplay = this.add.text(playerX, playerY - 100, "Health: 10", {font: "20px Arial", fill: "#ff1010"});
         this.player.healthDisplay.setOrigin(0.5, 0.5);
-        // console.log(this.player);
-        // console.log(this.bow);
         
         this.rightArmBowConstraint = this.matter.add.constraint(this.player.bodies[4], this.bow.list[0].body, 0, 0.001, {
             pointA: {
@@ -181,7 +172,6 @@ class LevelScene extends Phaser.Scene {
         if (this.player.health <= 0 && !this.reset) {
             this.events.emit("levelEnd", {victory:false});
             this.reset = true;
-            console.log(this.bow);
             this.canCharge = false;
             this.bow.list.forEach(item => {
                 item.x = this.player.bodies[4].position.x;
@@ -269,10 +259,6 @@ class LevelScene extends Phaser.Scene {
         });
         this.scene.pause();
     }
-    // constructHumanoid(x, y, scale, staticBody, health, flip) {
-    //     console.log(self.Phaser);
-    //     this.opp.constructHumanoid(this, x, y, scale, staticBody, health, flip);
-    // }
 
     constructHumanoid(x, y, scale, staticBody, health, flip, attackInterval, delay) {
         scale = Math.abs(scale);
@@ -656,9 +642,6 @@ class LevelScene extends Phaser.Scene {
                 this.destroyArrow(newArrow, this.opponentArrows);
             }
         });
-        // while (arrowList.length > 25) {
-        //     this.destroyArrow(arrowList[0], arrowList);
-        // }
     }
 
     constructPlayer(x, y, scale, staticBody, health, flip) {
@@ -1025,7 +1008,6 @@ class LevelScene extends Phaser.Scene {
         arrow.rotation = angle;
         arrow.alreadyHit = false;
         arrow.body.collisionFilter.group = group != null ? group : -15;
-        // console.log(arrow);
         return arrow;
     }
 
@@ -1127,9 +1109,6 @@ class LevelScene extends Phaser.Scene {
                                 ease:"Cubic.easeOut",
                                 repeat:0,
                             });
-                            // person.linkedSprites.forEach(sprite => {
-                            //     sprite.setAlpha(0.5);
-                            // });
                         });
                     }
                     if (!arrow.alreadyHit) {
@@ -1170,12 +1149,10 @@ class LevelScene extends Phaser.Scene {
                                 });
                             });
                         }
-                        // return 1;
                     }
 
                 }
             });
         });
-        // return 0;
     }
 }

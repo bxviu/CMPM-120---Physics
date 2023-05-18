@@ -16,24 +16,11 @@ class Menu extends Phaser.Scene {
 
     closeMenu(originalScene,nextScene,config) {
         this.scene.stop('SummaryScene');
-        // this.scene.transition({
-        //     target: 'LevelOne',
-        //     duration: 2000,
-        //     moveBelow: true,
-        //     onUpdate: this.transitionOut,
-        //     data: { x: 400, y: 300, "scale":1, "canCharge": true }
-        // });
         this.scene.start(nextScene, config);
-        // if (nextScene != "MainMenu") {
         if (nextScene != originalScene) {
             this.scene.stop(originalScene);
         }
     }
-
-    // transitionOut (progress)
-    // {
-    //     this.cameras.main.x = (400 * progress);
-    // }
 
     menuLeave(target, originalScene, nextScene, config) {
         this.tweens.add({

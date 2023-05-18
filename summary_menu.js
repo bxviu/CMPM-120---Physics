@@ -3,7 +3,6 @@ class SummaryScene extends Menu {
         super("SummaryScene");
     }
     init(data) {
-        // console.log(data);
         this.arrowsHit = data.arrowsHit;
         this.arrowsShot = data.arrowsShot;
         this.health = data.health;
@@ -99,9 +98,6 @@ class SummaryScene extends Menu {
                         this.menuLeave(summaryBox, this.currentLevel, this.nextLevel, {"scale":1, "canCharge": false});
                     }
                 });
-                // this.input.on('pointerdown', (event) => {
-                //     this.closeMenu();
-                // });
             }
         });
     }

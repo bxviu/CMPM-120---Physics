@@ -16,24 +16,9 @@ class TimedLevel extends LevelScene
 
         this.timerDisplay = this.add.text(1920/2, 100, "Time: " + (90-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
         this.timerDisplay.setOrigin(0.5, 0.5);
-        console.log(this);
-        // this.humanoids.push(this.constructHumanoid(750+400, 100, this.scale, false, 3, true, 1000, 4));
-        // this.humanoids.push(this.constructHumanoid(850+600, 700, this.scale+0.2, false, 5, true, 2000, 2));
-        // this.humanoids.push(this.constructHumanoid(950+200, 500, this.scale-0.3, false, 2, true, 3000, 3));
-        // this.humanoids.push(this.constructHumanoid(1000+700, 300, this.scale-0.5, false, 1, true, 4000, 1));
-        // this.humanoids.push(this.constructHumanoid(850+400, 400, this.scale+0.5, false, 9, true, 5000, 5));
+
         this.nextWave();
 
-
-        // let weirdAmalgamX = 1700;
-        // let weirdAmalgamY = 600;
-        // let weirdAmalgamScale = this.scale-0.6;
-        // let humanoidCount = 10;//Math.random()*10+1;
-        // for (let count = 0; count < humanoidCount; count++) {
-        //     // let difficulty = Math.random();
-        //     this.humanoids.push(this.constructHumanoid(weirdAmalgamX-count, weirdAmalgamY, weirdAmalgamScale, false, 1, true, Math.random()*500 + 750, Math.random()*2+10));
-        // // this.humanoids.push(this.constructHumanoid(Math.random()*1400+100, Math.random()*900, this.scale+(difficulty-0.5), false, Math.floor(difficulty*5)+1));
-        // }
     }
 
     update(time, delta){
@@ -61,7 +46,6 @@ class TimedLevel extends LevelScene
             }
         });
         if (remaining < 2) {
-            console.log(this.humanoids)
             this.nextWave();
         }
     }
