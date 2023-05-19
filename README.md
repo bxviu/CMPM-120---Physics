@@ -2,6 +2,9 @@
 
 ### [Click here to see the game.](https://bxviu.github.io/CMPM-120---Physics/)
 
+Credits to: https://github.com/liabru/matter-js/blob/master/examples/ragdoll.js
+
+Helped me with making a ragdoll for this game.
 
 Process requirements:\
 **Your GitHub repository must show a history of incremental commits with useful commit messages, tracing back to an empty repository at the start.**\
