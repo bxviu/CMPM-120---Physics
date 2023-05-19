@@ -43,7 +43,7 @@ class LevelScene extends Phaser.Scene {
         this.scale = this.data.scale != null ? this.data.scale : 1;
 
         let playerX = 75;
-        let playerY = 900;
+        let playerY = 850;
         this.chargeTime = 0;
         this.chargeDisplay = this.add.text(0,0, "Charge: 0", {font: "20px Arial", fill: "#ffff00"});
         this.chargeDisplay.setOrigin(0.5, 0.5).setDepth(10);
@@ -63,12 +63,13 @@ class LevelScene extends Phaser.Scene {
         this.mousey = mousey;
         this.events.removeListener("levelEnd");
         this.events.removeListener("arrowHit");
+        this.events.removeListener("nextWave");
         this.events.on("arrowHit", (param) => {
             this.arrowsHit = this.arrowsHit + param;
           });
         this.canCharge = true; 
 
-        let playerItems = this.createPlayer(playerX, playerY, Math.abs(this.scale));
+        let playerItems = this.createPlayer(playerX, playerY, Math.abs(this.scale), 10);
         this.bow = playerItems.playerContainer;
         this.player = playerItems.player;
         this.player.healthDisplay = this.add.text(playerX, playerY - 100, "Health: 10", {font: "20px Arial", fill: "#ff1010"});
@@ -185,12 +186,22 @@ class LevelScene extends Phaser.Scene {
             });
         }
         if (humanoidsDefeated && !this.reset) {
-            this.events.emit("levelEnd", {victory:true});
             this.reset = true;
-            this.addSlowdown();
-            this.time.delayedCall(5000, ()=>{
-                this.showSummary();
-            });
+            if (this.currentLevel != "TimedLevel") {
+                this.events.emit("levelEnd", {victory:true});
+                this.addSlowdown();
+                this.time.delayedCall(5000, ()=>{
+                    this.showSummary();
+                });
+            }
+            else {
+                this.addSlowdown();
+                this.time.delayedCall(5000, ()=>{
+                    this.events.emit("nextWave", {victory:true});
+                    this.matter.world.engine.timing.timeScale = 1;
+                    this.reset = false;
+                });
+            }
         }
         //humanoid attacks
         this.humanoids.forEach(humanoid => {
@@ -205,7 +216,7 @@ class LevelScene extends Phaser.Scene {
                         humanoid.currentDelay += 1;
                     }
                     else {
-                        this.humanoidAttack(humanoid, this.scale, (Math.random() * 75) + 25, this.player);
+                        this.humanoidAttack(humanoid, this.scale, (Math.random() * 95) + 5, this.player);
                     }
                     if (humanoid.currentDelay >= humanoid.delayAttack && !humanoid.triggered) {
                         humanoid.triggered = true;
@@ -630,7 +641,7 @@ class LevelScene extends Phaser.Scene {
         spawnpoint.force = {x:-0.025*scale,y:-0.002*scale};
         scale = Math.abs(scale);
         let playerTarget = player.bodies[Math.floor(Math.random() * player.bodies.length)].position;
-        const angle = Phaser.Math.Angle.Between(spawnpoint.position.x, spawnpoint.position.y, playerTarget.x, playerTarget.y);
+        const angle = Phaser.Math.Angle.Between(spawnpoint.position.x, spawnpoint.position.y, playerTarget.x+(Math.random()*200-100), playerTarget.y+(Math.random()*200-100));
         const speed = power * scale;
         const velocityX = Math.cos(angle) * speed;
         const velocityY = Math.sin(angle) * speed;
@@ -1051,7 +1062,7 @@ class LevelScene extends Phaser.Scene {
         });
     }
 
-    createPlayer(x, y, scale) {
+    createPlayer(x, y, scale, health) {
 
         let aimArrow = this.matter.add.image(100, 0, 'arrow', null);
         // aimArrow.scale = 0.2 * scale;
@@ -1065,7 +1076,7 @@ class LevelScene extends Phaser.Scene {
         bow.setStatic(true);
         bow.setScale(0.2 * scale);
         // bow.setOrigin(-2,-2);
-        let player = this.constructPlayer(x, y, scale, false, 10, false);
+        let player = this.constructPlayer(x, y, scale, false, health, false);
         let playerContainer = this.add.container(x, y);
         // console.log(playerContainer);
         playerContainer.add([bow, aimArrow]);
